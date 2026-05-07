@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>∑ Matematiğin İzi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@300;400;600&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0e0e0e;
+    --paper: #f5f0e8;
+    --cream: #ede8d8;
+    --gold: #c8a84b;
+    --rust: #b5451b;
+    --teal: #1a6b5c;
+    --muted: #7a7060;
+    --line: rgba(14,14,14,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ---- GRAIN OVERLAY ---- */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ---- NAVBAR ---- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(245,240,232,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--rust); }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0;
+    width: 0; height: 1px;
+    background: var(--rust);
+    transition: width 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* ---- HERO ---- */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 4rem 6rem 5rem;
+  }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 2.5rem; height: 1px;
+    background: var(--teal);
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 6vw, 6rem);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 2rem;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--rust);
+  }
+
+  .hero-desc {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 420px;
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.9rem 2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.3s, transform 0.2s;
+    width: fit-content;
+  }
+
+  .hero-cta:hover {
+    background: var(--rust);
+    transform: translateX(4px);
+  }
+
+  .hero-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    position: relative;
+  }
+
+  /* Giant formula decoration */
+  .formula-bg {
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-size: 14rem;
+    font-weight: 900;
+    color: rgba(200,168,75,0.07);
+    user-select: none;
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .formula-card {
+    background: var(--cream);
+    border: 1px solid var(--line);
+    padding: 3rem;
+    max-width: 380px;
+    position: relative;
+    box-shadow: 8px 8px 0 rgba(14,14,14,0.06);
+  }
+
+  .formula-card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+  }
+
+  .formula {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink);
+    border-left: 3px solid var(--rust);
+    padding-left: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .formula-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* Floating symbols */
+  .float-sym {
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    color: rgba(14,14,14,0.05);
+    pointer-events: none;
+    user-select: none;
+    animation: floatSym 6s ease-in-out infinite;
+  }
+
+  @keyframes floatSym {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-18px); }
+  }
+
+  /* ---- DIVIDER ---- */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--line) 20%, var(--line) 80%, transparent);
+    margin: 0 4rem;
+  }
+
+  /* ---- SECTIONS ---- */
+  section {
+    padding: 7rem 5rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .section-title em { color: var(--rust); font-style: italic; }
+
+  /* ---- YAZLAR ---- */
+  #yazilar { background: var(--paper); }
+
+  .articles-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1.5px;
+    background: var(--line);
+  }
+
+  .article-card {
+    background: var(--paper);
+    padding: 2.5rem;
+    cursor: pointer;
+    transition: background 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .article-card:hover { background: var(--cream); }
+
+  .article-card.featured {
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 480px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .article-card.featured:hover { background: #1a1a1a; }
+
+  .article-card.featured .art-cat { color: var(--gold); }
+  .article-card.featured .art-title { color: var(--paper); }
+  .article-card.featured .art-meta { color: rgba(245,240,232,0.5); }
+  .article-card.featured .art-excerpt { color: rgba(245,240,232,0.7); }
+
+  .featured-bg-sym {
+    position: absolute;
+    top: 1.5rem; right: 2rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    font-style: italic;
+    font-weight: 900;
+    color: rgba(200,168,75,0.15);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .art-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.8rem;
+  }
+
+  .art-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 0.7rem;
+    letter-spacing: -0.01em;
+  }
+
+  .article-card.featured .art-title { font-size: 2rem; }
+
+  .art-excerpt {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 1.2rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .art-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .art-arrow {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rust);
+    transition: transform 0.2s;
+  }
+
+  .article-card:hover .art-arrow { transform: translateX(5px); }
+
+  /* ---- OYUNLAR ---- */
+  #oyunlar { background: var(--cream); }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .game-card {
+    border: 1px solid var(--line);
+    padding: 2.5rem;
+    background: var(--paper);
+    cursor: pointer;
+    transition: transform 0.25s, box-shadow 0.25s;
+    position: relative;
+  }
+
+  .game-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(14,14,14,0.1);
+  }
+
+  .game-icon {
+    font-size: 2.8rem;
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+
+  .game-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper);
+    background: var(--teal);
+    padding: 0.2rem 0.6rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
+
+  .game-card:nth-child(2) .game-tag { background: var(--rust); }
+  .game-card:nth-child(3) .game-tag { background: var(--gold); color: var(--ink); }
+
+  .game-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+  }
+
+  .game-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+  }
+
+  .game-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    padding: 0.5rem 1.2rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+    background: transparent;
+  }
+
+  .game-btn:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* ---- HAKKIMDA ---- */
+  #hakkimda { background: var(--paper); }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 6rem;
+    align-items: start;
+  }
+
+  .about-portrait {
+    position: relative;
+  }
+
+  .portrait-box {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .portrait-box::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(200,168,75,0.1));
+  }
+
+  .portrait-offset {
+    position: absolute;
+    bottom: -1rem; right: -1rem;
+    width: 60%;
+    height: 60%;
+    border: 2px solid var(--gold);
+    z-index: -1;
+  }
+
+  .about-content {}
+
+  .about-intro {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-style: italic;
+    line-height: 1.4;
+    margin-bottom: 2rem;
+    color: var(--ink);
+  }
+
+  .about-text {
+    font-size: 1rem;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+  }
+
+  .about-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 3rem 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 2rem 0;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--rust);
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    display: block;
+  }
+
+  .about-contact {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .contact-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border: 1px solid;
+    transition: all 0.25s;
+    cursor: pointer;
+    display: inline-block;
+  }
+
+  .contact-btn.primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .contact-btn.primary:hover { background: var(--rust); border-color: var(--rust); }
+
+  .contact-btn.secondary {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+  }
+
+  .contact-btn.secondary:hover { border-color: var(--ink); }
+
+  /* ---- GAME MODAL ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(14,14,14,0.85);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--paper);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 3rem;
+    position: relative;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.2s;
+  }
+
+  .modal-close:hover { color: var(--rust); }
+
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 2rem;
+  }
+
+  /* Quiz Game */
+  .quiz-question {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--cream);
+    border-left: 3px solid var(--rust);
+  }
+
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .quiz-opt {
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    cursor: pointer;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    text-align: left;
+    transition: all 0.2s;
+  }
+
+  .quiz-opt:hover { background: var(--cream); border-color: var(--ink); }
+  .quiz-opt.correct { background: rgba(26,107,92,0.1); border-color: var(--teal); color: var(--teal); }
+  .quiz-opt.wrong { background: rgba(181,69,27,0.1); border-color: var(--rust); color: var(--rust); }
+
+  .quiz-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .quiz-feedback {
+    font-size: 0.9rem;
+    padding: 0.8rem 1.2rem;
+    margin-bottom: 1rem;
+    font-weight: 300;
+  }
+
+  .quiz-feedback.good { background: rgba(26,107,92,0.1); color: var(--teal); }
+  .quiz-feedback.bad { background: rgba(181,69,27,0.1); color: var(--rust); }
+
+  .quiz-next {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.7rem 1.5rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .quiz-next:hover { background: var(--teal); }
+
+  /* Hesap Makinesi */
+  .calc {
+    background: var(--cream);
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+  }
+
+  .calc-display {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    padding: 1rem 1.2rem;
+    text-align: right;
+    margin-bottom: 1rem;
+    min-height: 3.5rem;
+    word-break: break-all;
+  }
+
+  .calc-display .expr {
+    font-size: 0.75rem;
+    color: rgba(245,240,232,0.4);
+    display: block;
+    min-height: 1rem;
+  }
+
+  .calc-btns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  .calc-btn {
+    padding: 0.8rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .calc-btn:hover { background: var(--cream); border-color: var(--ink); }
+  .calc-btn.op { background: var(--cream); color: var(--rust); font-weight: 600; }
+  .calc-btn.eq { background: var(--rust); color: var(--paper); border-color: var(--rust); }
+  .calc-btn.eq:hover { background: #9a3a16; }
+  .calc-btn.clr { color: var(--teal); }
+
+  /* Akıl Yürütme */
+  .puzzle-box {
+    background: var(--cream);
+    padding: 2rem;
+    border: 1px solid var(--line);
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .puzzle-seq {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    color: var(--ink);
+  }
+
+  .puzzle-q {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .puzzle-input-wrap {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .puzzle-input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    text-align: center;
+    outline: none;
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+
+  .puzzle-input:focus { border-color: var(--teal); }
+
+  .puzzle-submit {
+    padding: 0.8rem 1.5rem;
+    background: var(--teal);
+    color: var(--paper);
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .puzzle-submit:hover { background: #145449; }
+
+  .puzzle-result {
+    font-size: 0.95rem;
+    text-align: center;
+    padding: 0.7rem;
+    font-weight: 300;
+  }
+
+  .puzzle-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 3rem 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+  }
+
+  .footer-logo span { color: var(--gold); }
+
+  .footer-copy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: rgba(245,240,232,0.4);
+    text-align: center;
+  }
+
+  .footer-eq {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--gold);
+    opacity: 0.6;
+  }
+
+  /* ---- ANIMATIONS ---- */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 2rem; }
+    #hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    section { padding: 5rem 2rem; }
+    .articles-grid { grid-template-columns: 1fr; }
+    .article-card.featured { min-height: 300px; }
+    .games-grid { grid-template-columns: 1fr; }
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    .nav-links { gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">∑<span>Mathem</span></a>
+  <ul class="nav-links">
+    <li><a href="#yazilar">Yazılar</a></li>
+    <li><a href="#oyunlar">Oyunlar</a></li>
+    <li><a href="#hakkimda">Hakkımda</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Matematiğin Güzelliğini Keşfet</div>
+    <h1 class="hero-title">Sayılar<br>bir <em>dil</em>dir.</h1>
+    <p class="hero-desc">
+      Soyut kavramları somutlaştıran yazılar, zihin açan bulmacalar ve
+      matematiğin dünyasına açılan bir kapı.
+    </p>
+    <a href="#yazilar" class="hero-cta">Keşfetmeye Başla →</a>
+  </div>
+  <div class="hero-right">
+    <div class="formula-bg">∫</div>
+    <div class="formula-card fade-in">
+      <div class="formula-card-label">// Euler Kimliği</div>
+      <div class="formula">e<sup>iπ</sup> + 1 = 0</div>
+      <div class="formula-desc">Matematik tarihinin en güzel denklemi olarak kabul edilen bu eşitlik; e, i, π, 1 ve 0'ı tek bir ifadede birleştirir.</div>
+    </div>
+    <span class="float-sym" style="top:15%;left:10%;font-size:4rem;">π</span>
+    <span class="float-sym" style="bottom:20%;right:8%;font-size:3rem;animation-delay:-2s;">∞</span>
+    <span class="float-sym" style="top:55%;left:5%;font-size:2.5rem;animation-delay:-4s;">√</span>
+  </div>
+</section>
+
+<!-- YAZLAR -->
+<div class="section-divider"></div>
+<section id="yazilar">
+  <div class="section-header fade-in">
+    <span class="section-num">01 —</span>
+    <h2 class="section-title">Son <em>Yazılar</em></h2>
+  </div>
+  <div class="articles-grid fade-in">
+    <!-- Featured -->
+    <div class="article-card featured">
+      <div class="featured-bg-sym">∞</div>
+      <div>
+        <div class="art-cat">Öne Çıkan · Analiz</div>
+        <div class="art-title">Sonsuzluğun Farklı Büyüklükleri</div>
+        <div class="art-excerpt">Cantor'un devrimsel keşfi: bazı sonsuzluklar, diğerlerinden daha büyüktür. Doğal sayılar ve gerçel sayılar arasındaki bu farkı kavşak diyagramlarıyla keşfedelim.</div>
+        <div class="art-meta">12 Mart 2025 · 8 dk okuma</div>
+        <div class="art-arrow">Devamını Oku →</div>
+      </div>
+    </div>
+    <!-- Cards -->
+    <div class="article-card">
+      <div class="art-cat">Geometri</div>
+      <div class="art-title">Altın Oran Her Yerde</div>
+      <div class="art-excerpt">Yapraklardan galaksilere, sanat eserlerinden DNA sarmalına...</div>
+      <div class="art-meta">5 Mart 2025 · 5 dk</div>
+      <div class="art-arrow">Oku →</div>
+    </div>
+    <div class="article-card">
+      <div class="art-cat">Sayı Teorisi</div>
+      <div class="art-title">Asal Sayıların Gizemi</div>
+      <div class="art-excerpt">Sonsuz sayıda asal sayı var mı? Öklid'in 2000 yıllık kanıtı hâlâ geçerli.</div>
+      <div class="art-meta">28 Şub 2025 · 4 dk</div>
+      <div class="art-arrow">Oku →</div>
+    </div>
+    <div class="article-card">
+      <div class="art-cat">Olasılık</div>
+      <div class="art-title">Monty Hall Paradoksu</div>
+      <div class="art-excerpt">Kapıyı değiştirmeli misiniz? Sezginin matematiği nasıl yendiğini görün.</div>
+      <div class="art-meta">20 Şub 2025 · 6 dk</div>
+      <div class="art-arrow">Oku →</div>
+    </div>
+    <div class="article-card">
+      <div class="art-cat">Topoloji</div>
+      <div class="art-title">Möbius Şeridinin Tuhaf Dünyası</div>
+      <div class="art-excerpt">Tek yüzeyli, tek kenarlı bu nesne matematikçileri yüzyıllardır büyülüyor.</div>
+      <div class="art-meta">14 Şub 2025 · 7 dk</div>
+      <div class="art-arrow">Oku →</div>
+    </div>
+  </div>
+</section>
+
+<!-- OYUNLAR -->
+<div class="section-divider"></div>
+<section id="oyunlar">
+  <div class="section-header fade-in">
+    <span class="section-num">02 —</span>
+    <h2 class="section-title">Matematik <em>Oyunları</em></h2>
+  </div>
+  <div class="games-grid fade-in">
+
+    <div class="game-card">
+      <span class="game-icon">🧠</span>
+      <div class="game-tag">Bilgi Yarışması</div>
+      <div class="game-title">Matematik Quizi</div>
+      <div class="game-desc">10 soruluk anlık matematik testinde ne kadar puan yapabilirsin? Her doğru cevap beyni biraz daha açar.</div>
+      <button class="game-btn" onclick="openModal('quiz')">Oyna</button>
+    </div>
+
+    <div class="game-card">
+      <span class="game-icon">🔢</span>
+      <div class="game-tag">Araç</div>
+      <div class="game-title">Bilimsel Hesap Makinesi</div>
+      <div class="game-desc">Temel işlemlerden karmaşık hesaplamalara kadar. Parantez ve ondalık desteğiyle.</div>
+      <button class="game-btn" onclick="openModal('calc')">Aç</button>
+    </div>
+
+    <div class="game-card">
+      <span class="game-icon">🔍</span>
+      <div class="game-tag">Bulmaca</div>
+      <div class="game-title">Dizi Bul</div>
+      <div class="game-desc">Verilen sayı dizisindeki örüntüyü keşfet ve bir sonraki sayıyı bul. Fibonacci'den karmaşık dizilere kadar.</div>
+      <button class="game-btn" onclick="openModal('puzzle')">Oyna</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- HAKKIMDA -->
+<div class="section-divider"></div>
+<section id="hakkimda">
+  <div class="section-header fade-in">
+    <span class="section-num">03 —</span>
+    <h2 class="section-title">Hakkım<em>da</em></h2>
+  </div>
+  <div class="about-grid fade-in">
+    <div class="about-portrait">
+      <div class="portrait-box">
+        <span style="opacity:0.3;font-family:'Playfair Display',serif;font-style:italic;">∑</span>
+      </div>
+      <div class="portrait-offset"></div>
+    </div>
+    <div class="about-content">
+      <p class="about-intro">"Matematik; evrenin kendi diliyle yazılmış bir şiirdir."</p>
+      <p class="about-text">
+        Merhaba! Ben bir matematik tutkunu, öğretmen ve yazarım. Yıllardır karmaşık
+        matematiksel kavramları herkesin anlayabileceği bir dile çevirmeye çalışıyorum.
+      </p>
+      <p class="about-text">
+        Bu sitede soyut matematiği somutlaştıran yazılar, öğrenmeyi eğlenceye dönüştüren
+        oyunlar ve herkese açık kaynaklar bulabilirsiniz. Amacım matematiğin sadece
+        okullarda değil, günlük hayatın her yerinde var olduğunu göstermek.
+      </p>
+
+      <div class="about-stats">
+        <div>
+          <span class="stat-num">47</span>
+          <span class="stat-label">Yayımlanan Yazı</span>
+        </div>
+        <div>
+          <span class="stat-num">12k</span>
+          <span class="stat-label">Aylık Okuyucu</span>
+        </div>
+        <div>
+          <span class="stat-num">8</span>
+          <span class="stat-label">Yıllık Deneyim</span>
+        </div>
+      </div>
+
+      <p class="about-text">
+        Fizik olimpiyatları, cebir, analiz ve kombinatorik konularında özel içerikler
+        üretiyorum. Lise öğrencilerinden akademisyenlere kadar geniş bir okuyucu kitlesine
+        hitap etmeye çalışıyorum.
+      </p>
+
+      <div class="about-contact">
+        <button class="contact-btn primary">İletişime Geç</button>
+        <button class="contact-btn secondary">Tüm Yazıları Gör</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">∑<span>Mathem</span></div>
+  <div class="footer-copy">© 2025 · Matematiğin İzi · Tüm hakları saklıdır</div>
+  <div class="footer-eq">e<sup>iπ</sup> + 1 = 0</div>
+</footer>
+
+<!-- ======================== MODALS ======================== -->
+
+<!-- QUIZ MODAL -->
+<div class="modal-overlay" id="modal-quiz">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('quiz')">✕</button>
+    <h2>Matematik Quizi</h2>
+    <div class="modal-subtitle">// Kaç Soruyu Doğru Cevaplarsın?</div>
+    <div class="quiz-score" id="quiz-score">Soru: 1 / 10 &nbsp;|&nbsp; Puan: 0</div>
+    <div class="quiz-question" id="quiz-q">Yükleniyor...</div>
+    <div class="quiz-options" id="quiz-opts"></div>
+    <div class="quiz-feedback" id="quiz-fb" style="display:none;"></div>
+    <button class="quiz-next" id="quiz-next" onclick="nextQuestion()" style="display:none;">Sonraki Soru →</button>
+  </div>
+</div>
+
+<!-- CALC MODAL -->
+<div class="modal-overlay" id="modal-calc">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('calc')">✕</button>
+    <h2>Hesap Makinesi</h2>
+    <div class="modal-subtitle">// Bilimsel Hesaplama Aracı</div>
+    <div class="calc">
+      <div class="calc-display">
+        <span class="expr" id="calc-expr"></span>
+        <span id="calc-val">0</span>
+      </div>
+      <div class="calc-btns">
+        <button class="calc-btn clr" onclick="calcAction('C')">C</button>
+        <button class="calc-btn clr" onclick="calcAction('±')">±</button>
+        <button class="calc-btn clr" onclick="calcAction('%')">%</button>
+        <button class="calc-btn op" onclick="calcAction('/')">÷</button>
+        <button class="calc-btn" onclick="calcAction('7')">7</button>
+        <button class="calc-btn" onclick="calcAction('8')">8</button>
+        <button class="calc-btn" onclick="calcAction('9')">9</button>
+        <button class="calc-btn op" onclick="calcAction('*')">×</button>
+        <button class="calc-btn" onclick="calcAction('4')">4</button>
+        <button class="calc-btn" onclick="calcAction('5')">5</button>
+        <button class="calc-btn" onclick="calcAction('6')">6</button>
+        <button class="calc-btn op" onclick="calcAction('-')">−</button>
+        <button class="calc-btn" onclick="calcAction('1')">1</button>
+        <button class="calc-btn" onclick="calcAction('2')">2</button>
+        <button class="calc-btn" onclick="calcAction('3')">3</button>
+        <button class="calc-btn op" onclick="calcAction('+')">+</button>
+        <button class="calc-btn" onclick="calcAction('(')">(</button>
+        <button class="calc-btn" onclick="calcAction('0')">0</button>
+        <button class="calc-btn" onclick="calcAction('.')">.</button>
+        <button class="calc-btn eq" onclick="calcAction('=')">=</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PUZZLE MODAL -->
+<div class="modal-overlay" id="modal-puzzle">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('puzzle')">✕</button>
+    <h2>Dizi Bul</h2>
+    <div class="modal-subtitle">// Bir Sonraki Sayıyı Tahmin Et</div>
+    <div id="puzzle-content"></div>
+  </div>
+</div>
+
+<script>
+// ---- FADE IN OBSERVER ----
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ---- MODAL ----
+function openModal(id) {
+  document.getElementById('modal-' + id).classList.add('open');
+  if(id === 'quiz') initQuiz();
+  if(id === 'puzzle') initPuzzle();
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+});
+
+// ---- QUIZ ----
+const questions = [
+  { q: "π (pi) sayısının ondalık açılımında ilk iki basamak nedir?", opts: ["3.14", "3.12", "3.16", "3.18"], ans: 0 },
+  { q: "Bir üçgenin iç açıları toplamı kaç derecedir?", opts: ["90°", "180°", "270°", "360°"], ans: 1 },
+  { q: "2³ × 2² = ?", opts: ["12", "16", "32", "64"], ans: 2 },
+  { q: "Fibonacci dizisinde 1, 1, 2, 3, 5, 8, __?", opts: ["11", "12", "13", "14"], ans: 2 },
+  { q: "log₂(8) = ?", opts: ["2", "3", "4", "8"], ans: 1 },
+  { q: "√144 = ?", opts: ["11", "12", "13", "14"], ans: 1 },
+  { q: "0! (sıfır faktöriyel) kaçtır?", opts: ["0", "1", "∞", "Tanımsız"], ans: 1 },
+  { q: "Bir dairenin çevresi formülü nedir?", opts: ["πr²", "2πr", "πd²", "4πr"], ans: 1 },
+  { q: "Asal sayı hangisi DEĞİLDİR?", opts: ["7", "11", "15", "17"], ans: 2 },
+  { q: "i² = ? (i: sanal birim)", opts: ["1", "0", "-1", "i"], ans: 2 },
+];
+
+let qIdx = 0, score = 0, answered = false;
+
+function initQuiz() {
+  qIdx = 0; score = 0; answered = false;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[qIdx];
+  document.getElementById('quiz-score').textContent = `Soru: ${qIdx+1} / ${questions.length}  |  Puan: ${score}`;
+  document.getElementById('quiz-q').textContent = q.q;
+  document.getElementById('quiz-fb').style.display = 'none';
+  document.getElementById('quiz-next').style.display = 'none';
+  answered = false;
+  const opts = document.getElementById('quiz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = o;
+    btn.onclick = () => selectAnswer(i, btn);
+    opts.appendChild(btn);
+  });
+}
+
+function selectAnswer(i, btn) {
+  if(answered) return;
+  answered = true;
+  const correct = questions[qIdx].ans;
+  const fb = document.getElementById('quiz-fb');
+  const allOpts = document.querySelectorAll('.quiz-opt');
+  allOpts[correct].classList.add('correct');
+  if(i === correct) {
+    score++;
+    fb.className = 'quiz-feedback good';
+    fb.textContent = '✓ Doğru! Harika iş.';
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'quiz-feedback bad';
+    fb.textContent = `✗ Yanlış. Doğru cevap: ${questions[qIdx].opts[correct]}`;
+  }
+  fb.style.display = 'block';
+  document.getElementById('quiz-score').textContent = `Soru: ${qIdx+1} / ${questions.length}  |  Puan: ${score}`;
+  const nxt = document.getElementById('quiz-next');
+  nxt.style.display = 'inline-block';
+  nxt.textContent = qIdx === questions.length - 1 ? 'Sonucu Gör →' : 'Sonraki Soru →';
+}
+
+function nextQuestion() {
+  qIdx++;
+  if(qIdx >= questions.length) {
+    const opts = document.getElementById('quiz-opts');
+    opts.innerHTML = '';
+    document.getElementById('quiz-q').textContent = '';
+    document.getElementById('quiz-fb').style.display = 'none';
+    document.getElementById('quiz-next').style.display = 'none';
+    const score_el = document.getElementById('quiz-score');
+    const pct = Math.round(score / questions.length * 100);
+    let msg = pct >= 80 ? '🏆 Mükemmel!' : pct >= 50 ? '👍 İyi iş!' : '📚 Biraz daha çalışalım!';
+    score_el.innerHTML = `Tamamlandı! Puan: ${score} / ${questions.length} (${pct}%) &nbsp; ${msg}`;
+    const qDiv = document.getElementById('quiz-q');
+    qDiv.textContent = 'Tekrar denemek için yeniden aç.';
+    return;
+  }
+  renderQuestion();
+}
+
+// ---- CALC ----
+let calcExpr = '';
+
+function calcAction(val) {
+  const display = document.getElementById('calc-val');
+  const exprEl = document.getElementById('calc-expr');
+
+  if(val === 'C') { calcExpr = ''; display.textContent = '0'; exprEl.textContent = ''; return; }
+  if(val === '=') {
+    try {
+      exprEl.textContent = calcExpr + ' =';
+      let expr = calcExpr.replace(/×/g,'*').replace(/÷/g,'/');
+      let result = Function('"use strict"; return (' + expr + ')')();
+      result = Math.round(result * 1e10) / 1e10;
+      display.textContent = result;
+      calcExpr = String(result);
+    } catch(e) { display.textContent = 'Hata'; calcExpr = ''; }
+    return;
+  }
+  if(val === '±') {
+    if(calcExpr && !isNaN(calcExpr)) { calcExpr = String(-parseFloat(calcExpr)); display.textContent = calcExpr; }
+    return;
+  }
+  if(val === '%') {
+    try {
+      let r = Function('"use strict"; return (' + calcExpr + ')')();
+      calcExpr = String(r / 100);
+      display.textContent = calcExpr;
+    } catch(e) {}
+    return;
+  }
+  calcExpr += val;
+  let shown = calcExpr.replace(/\*/g,'×').replace(/\//g,'÷');
+  display.textContent = shown.slice(-18);
+  exprEl.textContent = '';
+}
+
+// ---- PUZZLE ----
+const puzzles = [
+  { seq: [2, 4, 8, 16, 32], ans: 64, rule: "Her sayı 2 ile çarpılır (geometrik dizi)." },
+  { seq: [1, 1, 2, 3, 5, 8, 13], ans: 21, rule: "Fibonacci dizisi: her sayı önceki iki sayının toplamıdır." },
+  { seq: [1, 4, 9, 16, 25], ans: 36, rule: "Tam karelerin dizisi: 1², 2², 3², ..." },
+  { seq: [3, 6, 9, 12, 15], ans: 18, rule: "Aritmetik dizi: her adımda 3 artar." },
+  { seq: [1, 3, 7, 15, 31], ans: 63, rule: "Her sayı öncekinin 2 katı + 1: aⁿ = 2ⁿ - 1." },
+  { seq: [2, 3, 5, 7, 11, 13], ans: 17, rule: "Asal sayılar dizisi." },
+];
+
+let pIdx = 0;
+
+function initPuzzle() {
+  pIdx = Math.floor(Math.random() * puzzles.length);
+  renderPuzzle();
+}
+
+function renderPuzzle() {
+  const p = puzzles[pIdx];
+  const c = document.getElementById('puzzle-content');
+  c.innerHTML = `
+    <div class="puzzle-box">
+      <div class="puzzle-seq">${p.seq.join(' , ')} , ?</div>
+      <div class="puzzle-q">Bir sonraki sayı nedir?</div>
+    </div>
+    <div class="puzzle-input-wrap">
+      <input class="puzzle-input" type="number" id="puzzle-ans" placeholder="Cevabınız..." onkeydown="if(event.key==='Enter')checkPuzzle()">
+      <button class="puzzle-submit" onclick="checkPuzzle()">Kontrol Et</button>
+    </div>
+    <div class="puzzle-result" id="puzzle-result"></div>
+    <div class="puzzle-hint" id="puzzle-hint"></div>
+    <br>
+    <button class="game-btn" onclick="nextPuzzle()" style="margin-top:0.5rem;">Yeni Bulmaca →</button>
+  `;
+}
+
+function checkPuzzle() {
+  const val = parseInt(document.getElementById('puzzle-ans').value);
+  const p = puzzles[pIdx];
+  const res = document.getElementById('puzzle-result');
+  const hint = document.getElementById('puzzle-hint');
+  if(isNaN(val)) { res.textContent = 'Lütfen bir sayı girin.'; res.style.color = 'var(--muted)'; return; }
+  if(val === p.ans) {
+    res.textContent = `✓ Tebrikler! Cevap: ${p.ans}`;
+    res.style.color = 'var(--teal)';
+    hint.textContent = p.rule;
+  } else {
+    res.textContent = `✗ Yanlış. Tekrar deneyin.`;
+    res.style.color = 'var(--rust)';
+    hint.textContent = 'İpucu: Sayılar arasındaki fark veya oran nedir?';
+  }
+}
+
+function nextPuzzle() {
+  pIdx = (pIdx + 1) % puzzles.length;
+  renderPuzzle();
+}
+</script>
+</body>
+</html>
